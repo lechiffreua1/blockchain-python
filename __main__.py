@@ -1,9 +1,11 @@
 from functools import reduce
+import hashlib
+import json
 
 MINING_REWARD = 10
 
 genesis_block = {
-    'previous_hash': '',
+    'previous_hash': hashlib.sha256(''.encode('utf_8')).hexdigest(),
     'index': 0,
     'transactions': []
 }
@@ -16,7 +18,7 @@ participants = {owner}
 
 
 def hash_block(block):
-    return '-'.join([str(block[key]) for key in block])
+    return hashlib.sha256(json.dumps(block).encode(encoding='utf_8')).hexdigest()
 
 
 def get_balances(participant):
