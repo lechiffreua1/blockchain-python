@@ -1,16 +1,16 @@
 from functools import reduce
-from src.hash_util import hash_block, hash_sha256
+from hash_util import hash_block
 import json
 # import pickle
 
-from src.block import Block
-from src.transaction import Transaction
+from block import Block
+from transaction import Transaction
+from verification import Verification
 
 MINING_REWARD = 10
 MINING_SENDER = 'MINING'
 
 owner = 'Dima'
-participants = {owner}
 
 
 def load_data():
@@ -57,7 +57,7 @@ def load_data():
     except (IOError, IndexError):
         print('File not found!')
 
-        genesis_block = Block(index=0, previous_hash=hash_sha256(''.encode('utf_8')), transactions=[], proof=100)
+        genesis_block = Block(index=0, previous_hash='', transactions=[], proof=100)
 
         blockchain = [genesis_block]
 
@@ -96,21 +96,12 @@ def save_data():
         # f.write(pickle.dumps(data_to_save))
 
 
-def valid_proof(transactions, last_hash, proof):
-    guess = (str([tx.to_ordered_dict() for tx in transactions]) + str(last_hash) + str(proof)).encode()
-    guess_hash = hash_sha256(guess)
-
-    print(guess_hash)
-
-    return guess_hash[0:2] == '00'
-
-
 def proof_of_work():
     last_block = blockchain[-1]
     last_hash = hash_block(last_block)
     proof = 0
 
-    while not valid_proof(open_transactions, last_hash, proof):
+    while not Verification.valid_proof(open_transactions, last_hash, proof):
         proof += 1
 
     return proof
@@ -139,20 +130,10 @@ def get_last_blockchain_item():
     return blockchain[-1]
 
 
-def verify_transaction(transaction):
-    sender_balance = get_balances(transaction.sender)
-
-    return sender_balance >= transaction.amount
-
-
-def verify_transactions():
-    return all([verify_transaction(tx) for tx in open_transactions])
-
-
 def add_transaction(recipient, sender=owner, amount=1.0):
     transaction = Transaction(sender, recipient, amount)
 
-    if verify_transaction(transaction):
+    if Verification.verify_transaction(transaction, get_balances):
         open_transactions.append(transaction)
         save_data()
 
@@ -183,86 +164,8 @@ def mine_block():
     return True
 
 
-def get_transaction_data():
-    tx_recipient = input('Enter transaction recipient: ')
-    tx_amount = float(input('Enter transaction amount: '))
-
-    return tx_recipient, tx_amount
+verification = Verification()
 
 
-def get_user_choice():
-    return input('Your choice: ')
-
-
-def print_blockchain_items():
-    for block in blockchain:
-        print('Block: ' + str(block.__dict__))
-
-
-def verify_chain():
-    for (index, block) in enumerate(blockchain):
-        if index == 0:
-            continue
-        if block.previous_hash != hash_block(blockchain[index - 1]):
-            return False
-        if not valid_proof(block.transactions[:-1], block.previous_hash, block.proof):
-            print('Proof not valid')
-
-            return False
-
-    return True
-
-
-waiting_for_input = True
-
-while waiting_for_input:
-    print('Make your choice: ')
-    print('1: Add transaction')
-    print('2: Mine block')
-    print('3: Print blockchain blocks')
-    print('4: Print participants')
-    print('5: Check transaction validity')
-    print('h: Manipulate block')
-    print('q: Quit')
-
-    user_choice = get_user_choice()
-
-    if user_choice == '1':
-        tx_data = get_transaction_data()
-        recipient, amount = tx_data
-
-        add_transaction(recipient, amount=amount)
-
-    elif user_choice == '2':
-        if mine_block():
-            open_transactions = []
-            save_data()
-
-    elif user_choice == '3':
-        print_blockchain_items()
-
-    elif user_choice == '4':
-        print(participants)
-
-    elif user_choice == '5':
-        if verify_transactions():
-            print('All transactions are valid')
-        else:
-            print('Transactions are invalid')
-
-    elif user_choice == 'q':
-        waiting_for_input = False
-
-    else:
-        print('Unknown')
-
-    if not verify_chain():
-        print_blockchain_items()
-
-        print('Invalid blockchain')
-
-        break
-
-    print('User - {}, balance - {:.2f}'.format(owner, get_balances(owner)))
 
 print('Quit')
