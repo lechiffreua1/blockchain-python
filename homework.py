@@ -1,46 +1,67 @@
-import json
-import pickle
+class Food:
+    def __init__(self, name, kind):
+        self.name = name
+        self.kind = kind
 
-condition = True
-JSON_FILE_PATH = './homework_file.txt'
-PICKLE_FILE_PATH = './homework_file.p'
+    def __repr__(self):
+        return str(self.__dict__)
 
-
-def get_user_choice():
-    return input('Your choice: ')
-
-
-user_data_list = []
+    def describe(self):
+        print('Food name: {}, kind: {}'.format(self.name, self.kind))
 
 
-while condition:
-    print('1: add data')
-    print('2: write data')
-    print('3: for output')
-    print('4: for exiting')
+food = Food('apple', 'fruit')
+food.describe()
 
-    user_choice = get_user_choice()
 
-    if user_choice == '1':
-        user_data_list.append(input('Enter data:\n'))
+class FoodStatic:
+    @staticmethod
+    def describe(name, kind):
+        print('Food name: {}, kind: {}'.format(name, kind))
 
-    elif user_choice == '2':
-        with open(JSON_FILE_PATH, mode='w') as f:
-            f.write(json.dumps(user_data_list))
-            f.write('\n')
 
-        with open(PICKLE_FILE_PATH, mode='wb') as f:
-            f.write(pickle.dumps(user_data_list))
+FoodStatic.describe('apple', 'fruit')
 
-    elif user_choice == '3':
-        with open(JSON_FILE_PATH, mode='r') as f:
-            print('JSON: ', json.loads(f.read()))
 
-        with open(PICKLE_FILE_PATH, mode='rb') as f:
-            print('PICKLE: ', pickle.loads(f.read()))
+class FoodClassMethod:
+    name = 'default'
+    kind = 'default'
 
-    elif user_choice == '4':
-        condition = False
+    @classmethod
+    def describe(cls):
+        print('Food name: {}, kind: {}'.format(cls.name, cls.kind))
 
-    else:
-        exit(1)
+
+FoodClassMethod.name = 'apple'
+FoodClassMethod.kind = 'fruit'
+FoodClassMethod.describe()
+
+
+class Meat(Food):
+    def __init__(self, kind):
+        name = 'meat'
+        super().__init__(name, kind)
+
+    def cook(self):
+        print('I am cooking {} {}'.format(self.kind, self.name))
+
+
+beef = Meat('beef')
+beef.cook()
+
+
+class Fruit(Food):
+    def __init__(self, kind):
+        name = 'fruit'
+        super().__init__(name, kind)
+
+    def clean(self):
+        print('I amd cleaning {} {}'.format(self.kind, self.name))
+
+
+apple = Fruit('apple')
+apple.clean()
+
+
+print(beef)
+print(apple)
