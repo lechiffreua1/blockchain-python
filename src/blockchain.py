@@ -31,9 +31,6 @@ class Blockchain:
     def chain(self, value):
         self.__chain = value
 
-    def get_chain(self):
-        return self.__chain[:]
-
     def get_open_transactions(self):
         return self.__open_transactions[:]
 
@@ -145,7 +142,7 @@ class Blockchain:
 
     def mine_block(self):
         if self.hoisting_node is None:
-            return False
+            return None
 
         last_block = self.__chain[-1]
         hashed_block = hash_block(last_block)
@@ -158,7 +155,7 @@ class Blockchain:
 
         for tx in copied_open_transactions:
             if not Wallet.verify_transaction(tx):
-                return False
+                return None
 
         copied_open_transactions.append(reward_transaction)
 
@@ -173,4 +170,4 @@ class Blockchain:
         self.__open_transactions = []
         self.save_data()
 
-        return True
+        return block
