@@ -14,8 +14,8 @@ class Verification:
         return guess_hash[0:2] == '00'
 
     @staticmethod
-    def verify_transaction(transaction, get_balances, check_funds=True):
-        sender_balance = get_balances()
+    def verify_transaction(transaction, get_balance, check_funds=True):
+        sender_balance = get_balance()
 
         if check_funds:
             return sender_balance >= transaction.amount and Wallet.verify_transaction(transaction)
@@ -37,6 +37,6 @@ class Verification:
         return True
 
     @classmethod
-    def verify_transactions(cls, open_transactions, get_balances):
-        return all([cls.verify_transaction(tx, get_balances, False) for tx in open_transactions])
+    def verify_transactions(cls, open_transactions, get_balance):
+        return all([cls.verify_transaction(tx, get_balance, False) for tx in open_transactions])
 

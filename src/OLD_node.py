@@ -67,7 +67,7 @@ class Node:
                 self.print_blockchain_items()
 
             elif user_choice == '4':
-                if Verification.verify_transactions(self.blockchain.get_open_transactions(), self.blockchain.get_balances):
+                if Verification.verify_transactions(self.blockchain.get_open_transactions(), self.blockchain.get_balance):
                     print('All transactions are valid')
                 else:
                     print('Transactions are invalid')
@@ -96,7 +96,7 @@ class Node:
 
                 break
 
-            print('Balance of {}: {:6.2f}'.format(self.wallet.public_key, self.blockchain.get_balances()))
+            print('Balance of {}: {:6.2f}'.format(self.wallet.public_key, self.blockchain.get_balance()))
 
 
 if __name__ == '__main__':
